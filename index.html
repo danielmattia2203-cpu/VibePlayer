@@ -17,7 +17,7 @@
     --text: #ffffff;
     --text-dim: #888;
     --player-min-height: 95px; /* Altezza visiva */
-    --p-min: 95px;             /* Forza la posizione */
+    --p-min: 140px;             /* Forza la posizione */
 }
 
 
@@ -226,7 +226,7 @@
             background: rgba(22, 22, 26, 0.98); backdrop-filter: blur(25px);
             border-top: 1px solid #333; border-radius: 25px 25px 0 0; z-index: 1000;
             transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.17, 0.89, 0.32, 1);
-            padding-bottom: 30px;
+            padding-bottom: 25px;
         }
         .player-panel.active { transform: translateY(calc(100% - var(--p-min))); }
         .player-panel.expanded { transform: translateY(0); }
@@ -990,7 +990,7 @@
 
     // Calcoliamo se il movimento è stato verso l'alto o verso il basso
     const distanceMoved = currentY - initialOffset;
-    const threshold = 100; // Pixel necessari per cambiare stato
+    const threshold = 50; // Pixel necessari per cambiare stato
 
     if (panel.classList.contains('expanded')) {
         // Se era aperto e ho trascinato in basso di 100px -> Chiudi
