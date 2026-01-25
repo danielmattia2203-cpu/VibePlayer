@@ -19,6 +19,80 @@
     --player-min-height: 95px; /* Altezza visiva */
     --p-min: 140px;             /* Forza la posizione */
 }
+/* Overlay stile Roblox */
+.app-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Sfondo scuro */
+    backdrop-filter: blur(10px); /* Sfocatura sfondo */
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 99999; /* Sopra a tutto */
+    display: none; /* Nascosto di base */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'Inter', sans-serif;
+}
+
+.app-content {
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    animation: popupScale 0.3s ease-out;
+}
+
+@keyframes popupScale {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.app-logo-box {
+    width: 120px;
+    height: 120px;
+    background: var(--primary);
+    border-radius: 30px; /* Bordi curvi */
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+}
+
+.app-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
+.app-subtitle { font-size: 16px; color: #ccc; margin-bottom: 40px; }
+
+/* Pulsanti */
+.btn-app-open {
+    display: block;
+    width: 100%;
+    box-sizing: border-box; /* IMPORTANTE: impedisce al padding di allargare il tasto oltre il 100% */
+    background: white;
+    color: black !important;
+    text-decoration: none;
+    padding: 14px 10px; /* Padding verticale leggermente ridotto */
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px; /* Font leggermente più piccolo per evitare testi su due righe */
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+    border: none;
+}
+
+.btn-app-browser {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    opacity: 0.9;
+    padding: 10px; /* Area di tocco più comoda senza ingombrare */
+}
+.btn-app-open:active { transform: scale(0.98); }
 
 * {
     /* Rimuove il rettangolo blu al tocco su mobile */
@@ -411,6 +485,22 @@
             </div>
             <div class="fade-right" id="fade-right"></div>
         </div>
+<div id="roblox-style-popup" class="app-overlay">
+    <div class="app-content">
+        <div class="app-logo-box">
+            <img src="https://i.postimg.cc/7Zxd6XbM/Senza-titolo-29.png" 
+                 alt="App Logo" 
+                 style="width: 100%; height: 100%; border-radius: 20px; object-fit: cover;">
+        </div>
+        
+        <div class="app-title">VibePlayer per Android</div>
+        <div class="app-subtitle">Esplora la musica nella nostra app mobile!</div>
+
+        <a href="javascript:void(0)" onclick="handleAppAction()" class="btn-app-open">Continua nell'app</a>
+        <button onclick="closeAppPopup()" class="btn-app-browser">Continua nel browser</button>
+    </div>
+</div>
+
 
         <div id="folder-nav">
             <button class="back-btn" id="btn-back-folder"><i class="fas fa-arrow-left"></i></button>
@@ -1044,6 +1134,41 @@
     }
 });
 
+function showAppPopup() {
+    const popup = document.getElementById('roblox-style-popup');
+    popup.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Blocca lo scroll del sito sotto
+}
+
+function closeAppPopup() {
+    const popup = document.getElementById('roblox-style-popup');
+    popup.style.display = 'none';
+    document.body.style.overflow = 'auto'; // Riattiva lo scroll
+}
+
+function handleAppAction() {
+    const downloadUrl = "VibePlayer.apk"; 
+    
+    // Proviamo ad aprire l'app usando solo lo scheme. 
+    // Se l'app non è installata, non avendo il "package", il browser non andrà sullo Store.
+    window.location.href = "VibePlayer://";
+
+    // Se l'utente è ancora qui dopo 1.5s, scarica l'APK
+    setTimeout(() => {
+        if (!document.hidden) {
+            window.location.href = downloadUrl;
+        }
+    }, 1500);
+}
+
+// 1. APERTURA ALL'AVVIO
+// Usiamo window.onload per essere sicuri che la pagina sia pronta
+window.addEventListener('load', () => {
+    setTimeout(showAppPopup, 1000); // Compare dopo 1 secondo dall'avvio
+});
+
+// 2. RIPETIZIONE OGNI 5 MINUTI
+setInterval(showAppPopup, 300000);
 
 
         const seekSlider = document.getElementById('seek-slider');
