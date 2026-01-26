@@ -142,6 +142,25 @@
     will-change: transform;
 }
 
+/* Stile Icone Header */
+.crown { 
+    color: #FFD700; /* Oro */
+    margin-left: 6px; 
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6)); 
+}
+
+.music-note { 
+    color: #FF3131; /* Rosso Neon */
+    margin-left: 6px; 
+    filter: drop-shadow(0 0 8px rgba(255, 49, 49, 0.6));
+    animation: pulse-icon 2s infinite;
+}
+
+@keyframes pulse-icon {
+    0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 49, 49, 0.4)); }
+    50% { transform: scale(1.15); filter: drop-shadow(0 0 12px rgba(255, 49, 49, 0.8)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 49, 49, 0.4)); }
+}
 
 
         /* --- UI ELEMENTS --- */
@@ -639,14 +658,18 @@
         }
 
         function initUser() {
-            document.getElementById('user-header').innerHTML = `
-                <div class="user-section">
-                    <img src="${session.avatar}" class="avatar-small">
-                    <span class="user-name">${session.username}</span>
-                    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
-                </div>`;
+    document.getElementById('controls-zone').classList.remove('hidden');
+    // Carichiamo l'interfaccia base, le icone arriveranno dopo il calcolo dei brani
+    document.getElementById('user-header').innerHTML = `
+        <div class="user-section">
+            <img src="${session.avatar}" class="avatar-small">
+            <span class="user-name">${session.username}</span>
+            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+        </div>`;
+}
+
             document.getElementById('controls-zone').classList.remove('hidden');
-        }
+        
         function logout() { localStorage.removeItem('userSession'); location.reload(); }
 
         async function loadUserData() {
@@ -657,10 +680,47 @@
         async function saveUserData() {
             await sb.from('user_settings').upsert({ username: session.username, playlists: localPlaylists, favorites: localFavorites });
         }
-        async function loadSongsFromSupabase() {
-            const { data } = await sb.from('songs_db').select('*').eq('owner', session.username).order('created_at', {ascending: false});
-            if(data) { allSongs = data; renderList(); }
-        }
+        let absoluteMaxSongs = 0; 
+
+async function loadSongsFromSupabase() {
+    // 1. Recupera TUTTI i proprietari per calcolare il record assoluto
+    const { data: globalData } = await sb.from('songs_db').select('owner');
+    if (globalData) {
+        const counts = {};
+        globalData.forEach(s => counts[s.owner] = (counts[s.owner] || 0) + 1);
+        absoluteMaxSongs = Math.max(...Object.values(counts), 0);
+    }
+
+    // 2. Carica i brani dell'utente attuale
+    const { data: userSongs } = await sb.from('songs_db')
+        .select('*')
+        .eq('owner', session.username)
+        .order('created_at', {ascending: false});
+
+    if(userSongs) { 
+        allSongs = userSongs; 
+        renderList(); 
+        // 3. Aggiorna l'header con le icone (senza numero brani)
+        updateHeaderWithBadges();
+    }
+}
+
+function updateHeaderWithBadges() {
+    const isCreator = session.username === "୧ ‧₊˚Dany🍂☁️";
+    const isTop = (allSongs.length === absoluteMaxSongs && absoluteMaxSongs > 0);
+
+    document.getElementById('user-header').innerHTML = `
+        <div class="user-section">
+            <img src="${session.avatar}" class="avatar-small">
+            <span class="user-name">
+                ${session.username}
+                ${isCreator ? '<i class="fas fa-crown crown"></i>' : ''}
+                ${isTop ? '<i class="fas fa-music music-note"></i>' : ''}
+            </span>
+            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+        </div>`;
+}
+
 
         // --- RENDERING TRACCE ---
         function createTrackElement(song, container) {
