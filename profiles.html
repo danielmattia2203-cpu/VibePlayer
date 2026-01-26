@@ -15,8 +15,8 @@
             --accent: #007aff; 
             --text-main: #ffffff;
             --text-sub: #a1a1a6;
-            --creator-gold: #ffcc00;
-            --music-red: #ff3b30;
+            --creator-gold: #FFD700;
+            --music-red: #FF3131;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -39,7 +39,7 @@
         .profile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .profile-card {
             background: var(--card-bg); border-radius: 18px; overflow: hidden;
-            cursor: pointer; transition: transform 0.2s, border-color 0.2s; border: 1px solid #1c1c1e;
+            cursor: pointer; transition: transform 0.2s; border: 1px solid #1c1c1e;
         }
         .profile-card:active { transform: scale(0.95); }
         .img-wrapper { width: 100%; aspect-ratio: 1/1; background: #222; }
@@ -57,7 +57,7 @@
         #profile-view.active { display: flex; transform: translateY(0); }
 
         .profile-header { position: relative; width: 100%; height: 35vh; background: #111; overflow: hidden; }
-        .profile-banner { position: absolute; width: 100%; height: 100%; filter: blur(30px) brightness(0.5); transform: scale(1.2); object-fit: cover; }
+        .profile-banner { position: absolute; width: 100%; height: 100%; filter: blur(40px) brightness(0.4); transform: scale(1.3); object-fit: cover; }
         
         .back-btn {
             position: absolute; top: 50px; left: 20px; width: 40px; height: 40px;
@@ -67,30 +67,31 @@
         }
 
         .profile-content {
-            position: relative; margin-top: -60px; padding: 0 25px;
+            position: relative; margin-top: -65px; padding: 0 25px;
             flex-grow: 1; display: flex; flex-direction: column; align-items: center;
         }
         .main-avatar {
-            width: 130px; height: 130px; border-radius: 40px;
-            border: 5px solid var(--bg-color); object-fit: cover;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 5;
+            width: 135px; height: 135px; border-radius: 42px;
+            border: 6px solid var(--bg-color); object-fit: cover;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); z-index: 5;
         }
-        .profile-name { font-size: 28px; font-weight: 900; margin: 15px 0 5px; display: flex; align-items: center; gap: 10px; }
+        .profile-name { font-size: 28px; font-weight: 900; margin: 15px 0 5px; display: flex; align-items: center; gap: 8px; }
         
         .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-top: 25px; }
         .stat-card {
-            background: var(--card-bg); padding: 20px; border-radius: 20px;
+            background: var(--card-bg); padding: 20px; border-radius: 22px;
             text-align: center; border: 1px solid #1c1c1e;
         }
-        .stat-value { display: block; font-size: 20px; font-weight: 800; color: #ffffff; }
-        .stat-label { font-size: 12px; color: var(--text-sub); text-transform: uppercase; margin-top: 5px; }
+        .stat-value { display: block; font-size: 22px; font-weight: 800; color: #ffffff; }
+        /* TESTO BIANCO RICHIESTO */
+        .stat-label { font-size: 11px; color: #ffffff; text-transform: uppercase; margin-top: 6px; font-weight: 700; opacity: 0.8; letter-spacing: 0.5px; }
 
-        .bio-section { width: 100%; margin-top: 25px; color: var(--text-sub); line-height: 1.6; text-align: center; }
-        .join-date { font-size: 12px; color: #444; margin-top: auto; padding-bottom: 40px; text-transform: uppercase; letter-spacing: 1px; }
+        .bio-section { width: 100%; margin-top: 30px; color: var(--text-sub); line-height: 1.6; text-align: center; font-size: 15px; }
+        .join-date { font-size: 11px; color: #444; margin-top: auto; padding-bottom: 40px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* BADGES */
-        .crown { color: var(--creator-gold); font-size: 24px; }
-        .music-note { color: var(--music-red); font-size: 24px; }
+        /* BADGES COLORATI */
+        .crown { color: var(--creator-gold); filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.3)); }
+        .music-note { color: var(--music-red); filter: drop-shadow(0 0 5px rgba(255, 49, 49, 0.3)); }
         
         #loading { padding: 50px; text-align: center; color: var(--text-sub); font-weight: 600; }
     </style>
@@ -105,7 +106,7 @@
             <input type="text" id="search-input" placeholder="Cerca un utente...">
         </div>
     </div>
-    <div id="loading">Sincronizzazione in corso...</div>
+    <div id="loading">Sincronizzazione...</div>
     <div class="profile-grid" id="grid"></div>
 </div>
 
@@ -161,15 +162,16 @@
                 return { ...u, songCount: count };
             });
 
+            // Calcolo record globale
             absoluteMaxSongs = usersData.length > 0 ? Math.max(...usersData.map(u => u.songCount)) : 0;
             
             document.getElementById('loading').style.display = 'none';
             renderGrid(usersData);
 
-            // Controllo se l'URL ha già un profilo (es. sito.it/Dany)
+            // LOGICA /ID: Apre il profilo se l'URL contiene uno username esistente
             const path = window.location.pathname.substring(1);
             if(path) {
-                const user = usersData.find(u => u.username === decodeURIComponent(path));
+                const user = usersData.find(u => u.username.toLowerCase() === decodeURIComponent(path).toLowerCase());
                 if(user) openProfile(user);
             }
 
@@ -206,10 +208,7 @@
         const isTop = user.songCount === absoluteMaxSongs && absoluteMaxSongs > 0;
         const img = user.avatar_url || `https://ui-avatars.com/api/?name=${user.username}&background=random`;
         
-        // Aggiorna URL senza ricaricare
-        history.pushState({user: user.username}, "", "/" + encodeURIComponent(user.username));
-
-        // Popola dati
+        // Popolamento dati
         document.getElementById('p-avatar').src = img;
         document.getElementById('p-banner').src = img;
         document.getElementById('p-name').innerHTML = `
@@ -223,7 +222,7 @@
         const d = new Date(user.created_at);
         document.getElementById('p-date').innerText = `Membro dal ${d.toLocaleDateString('it-IT', {month:'long', year:'numeric'})}`;
 
-        // Mostra vista
+        // Animazione apertura
         const view = document.getElementById('profile-view');
         view.style.display = 'flex';
         setTimeout(() => view.classList.add('active'), 10);
@@ -231,7 +230,6 @@
     }
 
     function closeProfile() {
-        history.pushState({}, "", "/");
         const view = document.getElementById('profile-view');
         view.classList.remove('active');
         setTimeout(() => {
@@ -239,13 +237,6 @@
             document.getElementById('main-container').style.opacity = '1';
         }, 400);
     }
-
-    // Gestione tasto "Indietro" del telefono/browser
-    window.onpopstate = () => {
-        if (document.getElementById('profile-view').classList.contains('active')) {
-            closeProfile();
-        }
-    };
 
     document.getElementById('search-input').addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
