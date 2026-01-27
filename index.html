@@ -695,7 +695,7 @@
             else { saveUserData(); }
         }
         async function saveUserData() {
-            await sb.from('users').upsert({ username: session.username, playlists: localPlaylists, favorites: localFavorites });
+            await sb.from('user_settings').upsert({ username: session.username, playlists: localPlaylists, favorites: localFavorites });
         }
 let absoluteMaxSongs = 0;
 let absoluteMaxSeconds = 0; // Nuova variabile per il record di tempo
