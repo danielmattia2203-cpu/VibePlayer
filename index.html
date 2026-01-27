@@ -690,7 +690,7 @@
         function logout() { localStorage.removeItem('userSession'); location.reload(); }
 
         async function loadUserData() {
-            const { data } = await sb.from('users').select('*').eq('username', session.username).single();
+            const { data } = await sb.from('user_settings').select('*').eq('username', session.username).single();
             if(data) { localPlaylists = data.playlists || {}; localFavorites = data.favorites || []; } 
             else { saveUserData(); }
         }
